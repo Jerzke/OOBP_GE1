@@ -13,7 +13,7 @@ const productsDOM = document.querySelector('.products-center');
 let cart = [] ;
 //buttons
 let buttonsDOM = [];
-//getting products
+//getting products from products.json file..
 class Products{
  async getProducts(){
      try { 
@@ -37,7 +37,7 @@ console.log(error) ;
 }
 //UI
 class UI {
-    displayProducts(products){
+    displayProducts(products){ //Fetches product image, id, title, price from products.json and creates the div's needed for the hero section
         /*console.log(products)*/
         let result = '';
         products.forEach(product => {
@@ -59,7 +59,8 @@ class UI {
         productsDOM.innerHTML = result;
 
     }
-    getBagButtons(){
+    //creates the buttons you see on the product images and handles the click events.
+    getBagButtons(){  
         const buttons = [...document.querySelectorAll(".bag-btn")];
         buttonsDOM = buttons;
         /*console.log(buttons);*/
@@ -72,7 +73,7 @@ class UI {
              button.disable = true ;
          }
          else{
-             button.addEventListener('click', event => {
+             button.addEventListener('click', event => { 
              event.target.innerText = "in Cart";
              event.target.disabled = true;
              /*console.log(event)*/
@@ -94,19 +95,20 @@ class UI {
              });
          }
         }) ;
-    }
-    setCartValues(cart){
+    }                       //calculates carts total value
+    setCartValues(cart){ 
         let tempTotal = 0;
         let itemsTotal = 0;
         cart.map(item =>{
             tempTotal += item.price * item.amount;
             itemsTotal += item.amount;
         })
-        cartTotal.innerText = parseFloat(tempTotal.toFixed(2))
+        cartTotal.innerText = parseFloat(tempTotal.toFixed(2)) //sets the calculated value
         cartItems.innerText = itemsTotal;
         /*console.log(cartTotal,cartItems);*/
     }
-    addCartItem(item){
+    //adds selected items to the cart by making new divs dynamically
+    addCartItem(item){ 
     const div = document.createElement('div');
     div.classList.add('cart-item');
     div.innerHTML = `<img src=${item.image} alt="product"/>
@@ -122,6 +124,7 @@ class UI {
     </div>`;
 cartContent.appendChild(div);
     }
+    //Logic behind the cart showing up or being hidden on click
     showCart(){
     cartOverlay.classList.add('transparentBcg');
     cartDOM.classList.add('showCart');
@@ -145,9 +148,9 @@ cartContent.appendChild(div);
             clearCartBtn.addEventListener('click',() =>{
                 this.clearCart();
             });
-            //cart functionality
+            //cart function for removing items from cart or adding/removing using chevrons
             cartContent.addEventListener('click',event=>{
-               if(event.target.classList.contains('remove-item'))
+               if(event.target.classList.contains('remove-item')) //remove item logics
                {
                    let removeItem = event.target;
                    let id = removeItem.dataset.id;
@@ -204,7 +207,7 @@ cartContent.appendChild(div);
               return buttonsDOM.find(button => button.dataset.id === id);
           }
     }
-//LS
+//LS Basically creates the memory needed for holding the products/cart info in local storage while user changes views/reloads
 class Storage {
     static saveProducts(products){
         localStorage.setItem("products", JSON.stringify(products)
