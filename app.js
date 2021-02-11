@@ -13,7 +13,7 @@ const productsDOM = document.querySelector('.products-center');
 let cart = [] ;
 //buttons
 let buttonsDOM = [];
-//getting products from products.json file..
+//getting products from products.json file.
 class Products{
  async getProducts(){
      try { 
