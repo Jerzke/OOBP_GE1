@@ -1,7 +1,7 @@
 //variables
 
 const cartBtn = document.querySelector('.cart-btn');
-const closeCartBtn = document.querySelector('.close-cart');
+const closeCartBtn = document.querySelector('.closed-cart');
 const clearCartBtn = document.querySelector('.clear-cart');
 const cartDOM = document.querySelector('.cart');
 const cartOverlay = document.querySelector('.cart-overlay');
@@ -38,7 +38,7 @@ console.log(error) ;
 //UI
 class UI {
     displayProducts(products){
-        console.log(products)
+        /*console.log(products)*/
         let result = '';
         products.forEach(product => {
             result += `
@@ -126,7 +126,58 @@ cartContent.appendChild(div);
     cartOverlay.classList.add('transparentBcg');
     cartDOM.classList.add('showCart');
     }
-}
+    setupAPP(){
+        cart = Storage.getCart();
+        this.setCartValues(cart);
+        this.populateCart(cart);
+        cartBtn.addEventListener('click',this.showCart);
+        closeCartBtn.addEventListener('click',this.hideCart);
+        }
+        populateCart(cart){
+            cart.forEach(item => this.addCartItem(item))
+        }
+        hideCart(){
+            cartOverlay.classList.remove('transparentBcg');
+            cartDOM.classList.remove('showCart');
+        }
+        cartLogic(){
+            //clear cart button
+            clearCartBtn.addEventListener('click',() =>{
+                this.clearCart();
+            });
+            //cart functionality
+            cartContent.addEventListener('click',event=>{
+               if(event.target.classList.contains('remove-item'))
+               {
+                   let removeItem = event.target;
+                   let id = removeItem.dataset.id;
+                   cartContent.removeChild(removeItem.parentElement.parentElement);
+                   this.removeItem(id);
+
+               }
+            })
+        }
+        clearCart(){
+            let cartItems = cart.map(item => item.id);
+            cartItems.forEach(id => this.removeItem(id));
+            while(cartContent.children.length>0){
+            cartContent.removeChild(cartContent.children[0])
+        }
+        this.hideCart();
+        }
+        removeItem(id){
+          cart = cart.filter(item => item.id !==id);
+          this.setCartValues(cart);
+          Storage.saveCart(cart);
+          let button = this.getSingleButton(id)
+          button.disabled = false ;
+          button.innerHTML = `<i class="fa fa-shopping-cart"></i>add to cart`
+        
+        }
+          getSingleButton(id){
+              return buttonsDOM.find(button => button.dataset.id === id);
+          }
+    }
 //LS
 class Storage {
     static saveProducts(products){
@@ -140,6 +191,9 @@ class Storage {
     static saveCart(cart){
         localStorage.setItem('cart',JSON.stringify(cart));
     }
+    static getCart(){
+        return localStorage.getItem('cart')?JSON.parse(localStorage.getItem('cart')):[]
+    }
     
 }
 
@@ -147,12 +201,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const ui = new UI();
     const products = new Products;
     
-
+    //setup app
+    ui.setupAPP();
     //Get all products
    products.getProducts().then(products => {
        ui.displayProducts(products) ;
        Storage.saveProducts(products);
    }).then(()=>{
        ui.getBagButtons();
+       ui.cartLogic();
    });
     });
